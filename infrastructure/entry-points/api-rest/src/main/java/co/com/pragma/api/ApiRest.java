@@ -1,14 +1,15 @@
 package co.com.pragma.api;
 import co.com.pragma.api.mapper.userDtoMapper;
+import co.com.pragma.api.userDto.UserIntDto;
 import co.com.pragma.api.userDto.userOutDto;
+import co.com.pragma.model.user.User;
 import co.com.pragma.usecase.user.UserUseCase;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static org.springframework.http.ResponseEntity.*;
 
@@ -34,7 +35,14 @@ public class ApiRest {
 
     @GetMapping(path = "/userUsecase")
     public Flux<userOutDto> listUsers() {
-        return userUseCase.listUser()        // Flux<User>
-                .map(userDtoMapper::toDto); // Flux<userOutDto>
+        return userUseCase.listUser()
+                .map(userDtoMapper::toDto);
     }
+
+    @PostMapping(path = "/api/v1/usuarios")
+    public Mono<UserIntDto> registerUser(@RequestBody UserIntDto userDto) {
+        User user = userDtoMapper.toUserIntDto(userDto);
+        return userUseCase.registerUser(user).map(userDtoMapper::toIntDto);
+    }
+
 }

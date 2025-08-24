@@ -1,4 +1,7 @@
 package co.com.pragma.api.userDto;
 
-public record userOutDto(String name, String lastName, String phone, String documentType, String documentNumber) {
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public record userOutDto(String name, String lastName, LocalDate birthdate, String address, String phone, String email, BigDecimal salary) {
 }

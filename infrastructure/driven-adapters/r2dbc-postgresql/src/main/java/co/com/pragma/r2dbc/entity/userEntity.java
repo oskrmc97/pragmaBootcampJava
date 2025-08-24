@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -20,7 +22,9 @@ public class userEntity {
     private BigInteger id;
     private String name;
     private String lastName;
+    private LocalDate birthdate;
+    private String address;
     private String phone;
-    private String documentType;
-    private String documentNumber;
+    private String email;
+    private BigDecimal Salary;
 }
