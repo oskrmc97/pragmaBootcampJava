@@ -1,9 +1,10 @@
 package co.com.pragma.usecase.user;
 
 import co.com.pragma.model.user.User;
+import co.com.pragma.model.user.exception.EmailAlreadyInUseException;
 import co.com.pragma.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
+import lombok.extern.java.Log;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -13,17 +14,14 @@ import java.util.stream.Stream;
 
 
 @RequiredArgsConstructor
+@Log
 public class UserUseCase{
 
     private final UserRepository userRepository;
-    private final Logger log;
 
     public Flux<User> listUser(){
         return userRepository.listUser().doOnSubscribe(subscription -> log.info("Init search from users"))
-                .doOnNext(User -> log.info("User found")).onErrorResume(
-                        throwable -> {
-                            log.error(throwable.getMessage(),throwable);return Flux.empty();
-                        });
+                .doOnNext(User -> log.info("User found"));
     }
 
     public Mono<User> registerUser(User user){
@@ -40,14 +38,13 @@ public class UserUseCase{
             return Mono.error(new RuntimeException("Error the field is empty: " + errorValidationFields + "."));
         }
         else{
-        return userRepository.RegisterUser(user).doOnSubscribe(subscription -> log.info("microservice create user init")).doOnNext(User -> log.info("{} User created correctly", user.getName())).onErrorResume(
-                throwable -> {
-                    if (throwable instanceof Exception) {
-                        log.error("The email: {} is already used", user.getEmail(), throwable);
-                        return Mono.error(new RuntimeException("Error: The email is already used."));
+        return userRepository.RegisterUser(user)
+                .doOnSubscribe(subscription -> log.info("microservice create user init"))
+                .doOnNext(User -> log.info("{} User created correctly")).onErrorResume(throwable -> {
+                    if( throwable.getCause().getMessage().equals("duplicate key value violates unique constraint \"user_entity_email_key\"")){
+                        return Mono.error(new EmailAlreadyInUseException("Error creating user, the email:" +user.getEmail()+ " is duplicate"));
                     }
-                    else {
-                        log.error("Internal Error: {}", throwable.getMessage(), throwable);
+                    else{
                         return Mono.error(new RuntimeException("Error creating user"));
                     }
                 });

@@ -1,5 +1,6 @@
 package co.com.pragma.config;
 
+import co.com.pragma.api.Handler;
 import co.com.pragma.model.user.gateways.UserRepository;
 import co.com.pragma.usecase.user.UserUseCase;
 import org.slf4j.Logger;
@@ -17,10 +18,4 @@ import org.springframework.context.annotation.FilterType;
         useDefaultFilters = false)
 public class UseCasesConfig {
 
-        final static Logger logger = LoggerFactory.getLogger(UseCasesConfig.class);
-
-        @Bean
-        public UserUseCase userUseCase(UserRepository userRepository) {
-                return new UserUseCase(userRepository, logger);
-        }
 }
