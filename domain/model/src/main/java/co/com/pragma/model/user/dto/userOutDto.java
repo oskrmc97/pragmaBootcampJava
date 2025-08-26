@@ -1,4 +1,4 @@
-package co.com.pragma.api.userDto;
+package co.com.pragma.model.user.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

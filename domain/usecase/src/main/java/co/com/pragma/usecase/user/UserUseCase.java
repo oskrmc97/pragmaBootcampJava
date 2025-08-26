@@ -37,7 +37,7 @@ public class UserUseCase{
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(", "));
         if (!errorValidationFields.isEmpty()) {
-            return Mono.error(new RuntimeException("Error: Campo(s) faltante(s): " + errorValidationFields + "."));
+            return Mono.error(new RuntimeException("Error the field is empty: " + errorValidationFields + "."));
         }
         else{
         return userRepository.RegisterUser(user).doOnSubscribe(subscription -> log.info("microservice create user init")).doOnNext(User -> log.info("{} User created correctly", user.getName())).onErrorResume(
@@ -48,7 +48,7 @@ public class UserUseCase{
                     }
                     else {
                         log.error("Internal Error: {}", throwable.getMessage(), throwable);
-                        return Mono.error(new RuntimeException("Error creating user. Please try again later.."));
+                        return Mono.error(new RuntimeException("Error creating user"));
                     }
                 });
         }

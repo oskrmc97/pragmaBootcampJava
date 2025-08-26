@@ -1,4 +1,4 @@
-package co.com.pragma.api.userDto;
+package co.com.pragma.model.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
