@@ -75,4 +75,13 @@ public class Handler {
                             .bodyValue(errorMessage);
                 });
     }
+
+    public Mono<ServerResponse> GETUserUseCaseByEmail(ServerRequest serverRequest) {
+        String email = serverRequest.pathVariable("email");
+        return userUseCase.findUserByEmail(email)
+                .flatMap(user -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(user))
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
 }

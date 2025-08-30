@@ -38,4 +38,9 @@ public class UserUseCase{
                     }});
 
     }
+    public Mono<User> findUserByEmail(String email){
+        return userRepository.findUserByEmail(email)
+                .doOnSubscribe(subscription -> log.info("init search by email"))
+                .doOnNext(user -> log.info("User found: "+user.getName())).doOnError(Throwable::printStackTrace);
+    }
 }

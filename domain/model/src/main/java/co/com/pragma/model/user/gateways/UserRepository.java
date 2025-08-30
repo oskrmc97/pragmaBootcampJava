@@ -9,4 +9,5 @@ import java.util.List;
 public interface UserRepository {
     Flux<User> listUser();
     Mono<User> RegisterUser(User user);
+    Mono<User> findUserByEmail(String email);
 }

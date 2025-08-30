@@ -73,6 +73,6 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(GET("/userUsecase"), handler::GETUserUseCase)
                 .andRoute(POST("/api/v1/usuarios"), handler::POSTUserUseCase)
-                .and(route(GET("/api/otherusercase/path"), handler::listenGETOtherUseCase));
+                .andRoute(GET("/api/v1/usuarios/email/{email}"), handler::GETUserUseCaseByEmail);
     }
 }
