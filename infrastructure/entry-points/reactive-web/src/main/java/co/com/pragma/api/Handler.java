@@ -5,6 +5,7 @@ import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.dto.UserIntDto;
 import co.com.pragma.model.user.dto.userOutDto;
 import co.com.pragma.usecase.user.UserUseCase;
+import enums.RangeSalaryEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
 import co.com.pragma.api.exceptionHandler.ValidationExceptionHandler;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,6 +57,9 @@ public class Handler {
                             .collect(Collectors.joining(", "));
                     if (!errorValidationFields.isEmpty()) {
                         return Mono.error(new ValidationExceptionHandler("Error the field is empty: " + errorValidationFields + "."));
+                    }
+                    if(user.getSalary().compareTo(RangeSalaryEnum.MAX_SALARY.getValue()) > 0 || user.getSalary().compareTo(RangeSalaryEnum.MIN_SALARY.getValue()) < 0){
+                        return Mono.error(new ValidationExceptionHandler("The salary is not in the range : ($1 - $15000000) " + errorValidationFields + "."));
                     }
                     return Mono.just(user);
                 })
