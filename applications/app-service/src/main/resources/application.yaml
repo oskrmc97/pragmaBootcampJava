@@ -1,0 +1,17 @@
+spring:
+  docker:
+    compose:
+      enabled: false
+  r2dbc:
+    host: localhost
+    port: 5432
+    database: postgres
+    schema: public
+    username: postgres
+    password: 123456pragma
+
+cors:
+  allowed-origins:
+    - http://localhost:4200
+    - http://localhost:3000
+
