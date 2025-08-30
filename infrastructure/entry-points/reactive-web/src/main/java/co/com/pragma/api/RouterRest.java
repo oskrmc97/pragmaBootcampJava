@@ -1,6 +1,6 @@
 package co.com.pragma.api;
 
-import co.com.pragma.model.user.User;
+import co.com.pragma.model.loanRequest.LoanRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
@@ -31,10 +31,10 @@ public class RouterRest {
             MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET, beanClass = Handler.class, beanMethod = "getAllStudent",
 
             operation = @Operation(operationId = "getAllStudent", responses = {
-                    @ApiResponse(responseCode = "200", description = "get all student successfully.", content = @Content(schema = @Schema(implementation = User.class))) })),
+                    @ApiResponse(responseCode = "200", description = "get all student successfully.", content = @Content(schema = @Schema(implementation = LoanRequest.class))) })),
             @RouterOperation(path = "/get/students/{student_id}", produces = {
                     MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET, beanClass = Handler.class, beanMethod = "findById", operation = @Operation(operationId = "findById", responses = {
-                    @ApiResponse(responseCode = "200", description = "get student successfully.", content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "200", description = "get student successfully.", content = @Content(schema = @Schema(implementation = LoanRequest.class))),
                     @ApiResponse(responseCode = "404", description = "student not found by given id.") }, parameters = {
                     @Parameter(in = ParameterIn.PATH, name = "student_id") })),
 
@@ -71,8 +71,8 @@ public class RouterRest {
 
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
-        return route(GET("/userUsecase"), handler::GETUserUseCase)
-                .andRoute(POST("/api/v1/usuarios"), handler::POSTUserUseCase)
+        return route(GET("/list/loanRequest"), handler::GETULoanRequestUseCase)
+                .andRoute(POST("/api/v1/solicitud"), handler::POSTUserUseCase)
                 .and(route(GET("/api/otherusercase/path"), handler::listenGETOtherUseCase));
     }
 }

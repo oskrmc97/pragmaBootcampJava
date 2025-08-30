@@ -1,11 +1,12 @@
 package co.com.pragma.api;
 
-import co.com.pragma.api.mapper.UserDtoMapper;
-import co.com.pragma.model.user.User;
-import co.com.pragma.model.user.dto.UserIntDto;
-import co.com.pragma.model.user.dto.userOutDto;
-import co.com.pragma.usecase.user.UserUseCase;
-import enums.RangeSalaryEnum;
+import co.com.pragma.api.mapper.LoanRequestDtoMapper;
+import co.com.pragma.model.loanRequest.LoanRequest;
+import co.com.pragma.model.loanRequest.dto.LoanRequestIntDto;
+import co.com.pragma.model.loanRequest.dto.LoanRequestOutDto;
+import co.com.pragma.usecase.user.LoanRequestUseCase;
+import enums.LoanType;
+import enums.StatusLoanRequestEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +18,6 @@ import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
 import co.com.pragma.api.exceptionHandler.ValidationExceptionHandler;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,15 +26,15 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class Handler {
 
-    private final UserUseCase userUseCase;
-    private final UserDtoMapper userDtoMapper;
+    private final LoanRequestUseCase loanRequestUseCase;
+    private final LoanRequestDtoMapper loanRequestDtoMapper;
     private final Logger log;
 
-    public Mono<ServerResponse> GETUserUseCase(ServerRequest serverRequest) {
-        Flux<User> users = userUseCase.listUser();
+    public Mono<ServerResponse> GETULoanRequestUseCase(ServerRequest serverRequest) {
+        Flux<LoanRequest> loanRequest = loanRequestUseCase.listLoanRequest();
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(users.map(userDtoMapper::toDto),userOutDto.class);
+                .body(loanRequest.map(loanRequestDtoMapper::toDto), LoanRequestOutDto.class);
 
     }
 
@@ -44,30 +44,23 @@ public class Handler {
     }
 
     public Mono<ServerResponse> POSTUserUseCase(ServerRequest serverRequest) {
-        return serverRequest.bodyToMono(UserIntDto.class)
-                .map(userDtoMapper::toUserFromIntDto)
-                .flatMap(user -> {
-                    String errorValidationFields = Stream.<String>builder()
-                            .add(user.getName() == null || user.getName().isEmpty() ? "name" : null)
-                            .add(user.getLastName() == null || user.getLastName().isEmpty() ? "lastName" : null)
-                            .add(user.getEmail() == null || user.getEmail().isEmpty() ? "email" : null)
-                            .add(user.getSalary() == null ? "salary" : null)
-                            .build()
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.joining(", "));
-                    if (!errorValidationFields.isEmpty()) {
-                        return Mono.error(new ValidationExceptionHandler("Error the field is empty: " + errorValidationFields + "."));
-                    }
-                    if(user.getSalary().compareTo(RangeSalaryEnum.MAX_SALARY.getValue()) > 0 || user.getSalary().compareTo(RangeSalaryEnum.MIN_SALARY.getValue()) < 0){
-                        return Mono.error(new ValidationExceptionHandler("The salary is not in the range : ($1 - $15000000) " + errorValidationFields + "."));
-                    }
-                    return Mono.just(user);
+        return serverRequest.bodyToMono(LoanRequestIntDto.class)
+                .map(loanRequestDtoMapper::toLoanRequestFromIntDto)
+                .filter(loanRequest ->
+                        loanRequest.getLoan_type().equals(LoanType.LIBRE_INVERSION.getValue()) ||
+                                loanRequest.getLoan_type().equals(LoanType.VEHICULO.getValue()) ||
+                                    loanRequest.getLoan_type().equals(LoanType.VIVIENDA.getValue()) ||
+                                        loanRequest.getLoan_type().equals(LoanType.ESTUDIO.getValue())
+                ).switchIfEmpty(Mono.error(new ValidationExceptionHandler("Tipo de préstamo no permitido")))
+                .flatMap(loanRequest -> {
+                    loanRequest.setStatus(StatusLoanRequestEnum.PENDIETE_REVISION.getValue());
+                    return Mono.just(loanRequest);
                 })
-                .flatMap(userUseCase::registerUser)
-                .map(userDtoMapper::toIntDto)
+                .flatMap(loanRequestUseCase::registerLoanRequest)
+                .map(loanRequestDtoMapper::toIntDto)
                 .flatMap(dto -> ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("User: " +dto.getName()+ " create correctly"))
+                .bodyValue(" loan request create correctly"))
                 .onErrorResume(ValidationExceptionHandler.class, ex -> {
                     String errorMessage = "business error: " + ex.getMessage();
                     return ServerResponse.status(HttpStatus.CONFLICT)

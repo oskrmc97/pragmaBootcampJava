@@ -1,8 +1,8 @@
 package co.com.pragma.r2dbc;
 
-import co.com.pragma.model.user.User;
-import co.com.pragma.model.user.gateways.UserRepository;
-import co.com.pragma.r2dbc.entity.userEntity;
+import co.com.pragma.model.loanRequest.LoanRequest;
+import co.com.pragma.model.loanRequest.gateways.LoanRequestRepository;
+import co.com.pragma.r2dbc.entity.LoanRequestEntity;
 import co.com.pragma.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
@@ -13,23 +13,23 @@ import reactor.core.publisher.Mono;
 import java.math.BigInteger;
 
 @Repository
-public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<User, userEntity, BigInteger, MyReactiveRepository> implements UserRepository {
+public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<LoanRequest, LoanRequestEntity, BigInteger, MyReactiveRepository> implements LoanRequestRepository {
     public MyReactiveRepositoryAdapter(MyReactiveRepository repository, ObjectMapper mapper) {
 
-        super(repository, mapper, d -> mapper.map(d, User.class/* change for domain model */));
+        super(repository, mapper, d -> mapper.map(d, LoanRequest.class/* change for domain model */));
     }
 
     @Override
-    public Flux<User> listUser() {
+    public Flux<LoanRequest> listLoanRequest() {
         return repository.findAll()
-                .map(entity -> mapper.map(entity, User.class));
+                .map(entity -> mapper.map(entity, LoanRequest.class));
     }
 
     @Override
     @Transactional
-    public Mono<User> RegisterUser(User user) {
-        userEntity userEntity = mapper.map(user, userEntity.class);
-        return repository.save(userEntity).map(entity -> mapper.map(entity, User.class));
+    public Mono<LoanRequest> RegisterLoanRequest(LoanRequest user) {
+        LoanRequestEntity LoanRequestEntity = mapper.map(user, LoanRequestEntity.class);
+        return repository.save(LoanRequestEntity).map(entity -> mapper.map(entity, LoanRequest.class));
     }
 
 }

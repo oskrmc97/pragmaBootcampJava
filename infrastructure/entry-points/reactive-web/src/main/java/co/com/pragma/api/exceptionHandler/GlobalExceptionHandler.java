@@ -1,5 +1,4 @@
 package co.com.pragma.api.exceptionHandler;
-import co.com.pragma.model.user.exception.EmailAlreadyInUseException;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
