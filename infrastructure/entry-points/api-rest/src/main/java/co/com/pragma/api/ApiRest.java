@@ -1,13 +1,7 @@
 package co.com.pragma.api;
-import co.com.pragma.model.user.User;
-import co.com.pragma.model.user.dto.UserIntDto;
-import co.com.pragma.model.user.dto.userOutDto;
-import co.com.pragma.usecase.user.UserUseCase;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * API Rest controller.

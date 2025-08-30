@@ -1,5 +1,9 @@
 package co.com.pragma.model.user.exception;
 
+
+import lombok.Getter;
+
+@Getter
 public class EmailAlreadyInUseException extends RuntimeException {
 
     private final String email;
@@ -14,7 +18,4 @@ public class EmailAlreadyInUseException extends RuntimeException {
         email = null;
     }
 
-    public String getEmail() {
-        return email;
-    }
 }

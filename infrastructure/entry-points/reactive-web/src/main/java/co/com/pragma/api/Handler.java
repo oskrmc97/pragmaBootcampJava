@@ -4,18 +4,21 @@ import co.com.pragma.api.mapper.UserDtoMapper;
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.dto.UserIntDto;
 import co.com.pragma.model.user.dto.userOutDto;
-import co.com.pragma.model.user.exception.EmailAlreadyInUseException;
 import co.com.pragma.usecase.user.UserUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.yaml.snakeyaml.constructor.DuplicateKeyException;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
+import co.com.pragma.api.exceptionHandler.ValidationExceptionHandler;
+
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -30,6 +33,7 @@ public class Handler {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(users.map(userDtoMapper::toDto),userOutDto.class);
+
     }
 
     public Mono<ServerResponse> listenGETOtherUseCase(ServerRequest serverRequest) {
@@ -40,20 +44,30 @@ public class Handler {
     public Mono<ServerResponse> POSTUserUseCase(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(UserIntDto.class)
                 .map(userDtoMapper::toUserFromIntDto)
+                .flatMap(user -> {
+                    String errorValidationFields = Stream.<String>builder()
+                            .add(user.getName() == null || user.getName().isEmpty() ? "name" : null)
+                            .add(user.getLastName() == null || user.getLastName().isEmpty() ? "lastName" : null)
+                            .add(user.getEmail() == null || user.getEmail().isEmpty() ? "email" : null)
+                            .add(user.getSalary() == null ? "salary" : null)
+                            .build()
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.joining(", "));
+                    if (!errorValidationFields.isEmpty()) {
+                        return Mono.error(new ValidationExceptionHandler("Error the field is empty: " + errorValidationFields + "."));
+                    }
+                    return Mono.just(user);
+                })
                 .flatMap(userUseCase::registerUser)
                 .map(userDtoMapper::toIntDto)
                 .flatMap(dto -> ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("User: " +dto.getName()+ " create correctly")).onErrorResume(
-                throwable -> {
-                    if( throwable instanceof EmailAlreadyInUseException){
-                        log.error("The email is already used",throwable);
-                        return Mono.error(new EmailAlreadyInUseException("Error creating user email is duplicate"));
-                    }
-                    else{
-                        log.error("Internal Error: {}", throwable.getMessage(), throwable);
-                        return Mono.error(new RuntimeException("Error creating user"));
-                    }
+                .bodyValue("User: " +dto.getName()+ " create correctly"))
+                .onErrorResume(ValidationExceptionHandler.class, ex -> {
+                    String errorMessage = "business error: " + ex.getMessage();
+                    return ServerResponse.status(HttpStatus.CONFLICT)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(errorMessage);
                 });
     }
 }

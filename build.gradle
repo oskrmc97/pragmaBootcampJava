@@ -34,4 +34,17 @@ sonar {
     }
 }
 
-apply from: './main.gradle'
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+    apply from: './main.gradle'
