@@ -4,7 +4,7 @@ spring:
       enabled: false
   r2dbc:
     host: localhost
-    port: 5432
+    port: 5434
     database: postgres
     schema: public
     username: postgres

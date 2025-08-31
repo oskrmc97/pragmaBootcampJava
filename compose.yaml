@@ -8,4 +8,4 @@ services:
     environment:
       - POSTGRES_PASSWORD=123456pragma
     ports:
-      - '5432:5432'
+      - '5434:5432' 
