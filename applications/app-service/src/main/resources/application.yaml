@@ -4,11 +4,14 @@ spring:
       enabled: false
   r2dbc:
     host: localhost
-    port: 5432
-    database: loanRequests
+    port: 5433
+    database: postgres
     schema: public
     username: postgres
     password: 123456pragma
+
+server:
+  port: 8085
 
 cors:
   allowed-origins:
