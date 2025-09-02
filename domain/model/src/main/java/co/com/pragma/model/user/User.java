@@ -2,8 +2,9 @@ package co.com.pragma.model.user;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
-//import lombok.NoArgsConstructor;
+
 
 
 @Getter
@@ -18,5 +19,7 @@ public class User {
     private String address;
     private String phone;
     private String email;
+    private String document;
     private BigDecimal salary;
+    private String rolUser;
 }

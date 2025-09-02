@@ -1,11 +1,13 @@
 package co.com.pragma.model.user.dto;
 
+import co.com.pragma.model.user.RolUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 
 @Getter
@@ -19,5 +21,7 @@ public class UserIntDto {
     String address;
     String phone;
     String email;
+    String document;
     BigDecimal salary;
+    String rolUser;
 }

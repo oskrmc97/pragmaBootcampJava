@@ -1,4 +1,4 @@
-package co.com.pragma.r2dbc;
+package co.com.pragma.r2dbc.userRepository;
 
 import co.com.pragma.model.user.User;
 import co.com.pragma.r2dbc.entity.userEntity;
@@ -11,9 +11,10 @@ import reactor.core.publisher.Mono;
 import java.math.BigInteger;
 
 // TODO: This file is just an example, you should delete or modify it
-public interface MyReactiveRepository extends ReactiveCrudRepository<userEntity, BigInteger>, ReactiveQueryByExampleExecutor<userEntity> {
+public interface MyUserReactiveRepository extends ReactiveCrudRepository<userEntity, BigInteger>, ReactiveQueryByExampleExecutor<userEntity> {
 
-    @Query(value = "SELECT * FROM user_entity WHERE email = :email")
-    Mono<User> findByEmail(@Param("email") String email);
+    @Query("SELECT * FROM users WHERE email = :email")
+    Mono<userEntity> findByEmail(@Param("email") String email);
+
 
 }

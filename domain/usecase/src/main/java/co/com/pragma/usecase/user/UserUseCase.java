@@ -30,7 +30,7 @@ public class UserUseCase{
         return userRepository.RegisterUser(user)
                 .doOnSubscribe(subscription -> log.info("microservice create user init"))
                 .doOnNext(User -> log.info("{} User created correctly")).onErrorResume(throwable -> {
-                    if( throwable.getCause().getMessage().equals("duplicate key value violates unique constraint \"user_entity_email_key\"")){
+                    if( throwable.getCause().getMessage().equals("duplicate key value violates unique constraint \"users_email_key\"")){
                         return Mono.error(new EmailAlreadyInUseException("Error creating user, the email:" +user.getEmail()+ " is duplicate"));
                     }
                     else{

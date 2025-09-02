@@ -4,6 +4,7 @@ import co.com.pragma.api.mapper.UserDtoMapper;
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.dto.UserIntDto;
 import co.com.pragma.model.user.dto.userOutDto;
+import co.com.pragma.model.user.gateways.RolRepository;
 import co.com.pragma.usecase.user.UserUseCase;
 import enums.RangeSalaryEnum;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
 import co.com.pragma.api.exceptionHandler.ValidationExceptionHandler;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 public class Handler {
 
     private final UserUseCase userUseCase;
+    private final RolRepository rolRepository;
     private final UserDtoMapper userDtoMapper;
     private final Logger log;
 
@@ -34,8 +35,7 @@ public class Handler {
         Flux<User> users = userUseCase.listUser();
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(users.map(userDtoMapper::toDto),userOutDto.class);
-
+                .body(users.map(userDtoMapper::toDto), userOutDto.class);
     }
 
     public Mono<ServerResponse> listenGETOtherUseCase(ServerRequest serverRequest) {
