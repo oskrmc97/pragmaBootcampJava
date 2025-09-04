@@ -24,4 +24,5 @@ public class UserIntDto {
     String document;
     BigDecimal salary;
     String rolUser;
+    String password;
 }

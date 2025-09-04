@@ -36,6 +36,7 @@ sonar {
 
 test {
     useJUnitPlatform()
+    include '**/UserUseCaseTest.class'
     finalizedBy jacocoTestReport
 }
 

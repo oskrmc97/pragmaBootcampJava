@@ -22,4 +22,5 @@ public class User {
     private String document;
     private BigDecimal salary;
     private String rolUser;
+    private String password;
 }

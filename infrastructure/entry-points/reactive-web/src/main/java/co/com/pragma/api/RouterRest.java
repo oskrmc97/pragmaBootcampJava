@@ -27,27 +27,27 @@ public class RouterRest {
 
 
     @Bean
-    @RouterOperations({ @RouterOperation(path = "/get/students", produces = {
-            MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET, beanClass = Handler.class, beanMethod = "getAllStudent",
+    @RouterOperations({ @RouterOperation(path = "/userUsecase", produces = {
+            MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET, beanClass = Handler.class, beanMethod = "GETUserUseCase",
 
-            operation = @Operation(operationId = "getAllStudent", responses = {
-                    @ApiResponse(responseCode = "200", description = "get all student successfully.", content = @Content(schema = @Schema(implementation = User.class))) })),
-            @RouterOperation(path = "/get/students/{student_id}", produces = {
-                    MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET, beanClass = Handler.class, beanMethod = "findById", operation = @Operation(operationId = "findById", responses = {
-                    @ApiResponse(responseCode = "200", description = "get student successfully.", content = @Content(schema = @Schema(implementation = User.class))),
-                    @ApiResponse(responseCode = "404", description = "student not found by given id.") }, parameters = {
-                    @Parameter(in = ParameterIn.PATH, name = "student_id") })),
+            operation = @Operation(operationId = "GETUserUseCase", responses = {
+                    @ApiResponse(responseCode = "200", description = "get all users successfully.", content = @Content(schema = @Schema(implementation = User.class))) })),
+            @RouterOperation(path = "/api/v1/usuarios/email/{email}", produces = {
+                    MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET, beanClass = Handler.class, beanMethod = "GETUserUseCaseByEmail", operation = @Operation(operationId = "GETUserUseCaseByEmail", responses = {
+                    @ApiResponse(responseCode = "200", description = "get user successfully.", content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "404", description = "user not found by email.") }, parameters = {
+                    @Parameter(in = ParameterIn.PATH, name = "email") })),
 
             @RouterOperation(
-                    path = "/add/student",
+                    path = "/api/v1/usuarios",
                     produces = {
                             MediaType.APPLICATION_JSON_VALUE
                     },
                     method = RequestMethod.POST,
                     beanClass = Handler.class,
-                    beanMethod = "addStudent",
+                    beanMethod = "POSTUserUseCase",
                     operation = @Operation(
-                            operationId = "addStudent",
+                            operationId = "/api/v1/usuarios",
                             responses = {
                                     @ApiResponse(
                                             responseCode = "200",

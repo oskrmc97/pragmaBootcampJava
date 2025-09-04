@@ -4,6 +4,7 @@ import co.com.pragma.api.mapper.UserDtoMapper;
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.dto.UserIntDto;
 import co.com.pragma.model.user.dto.userOutDto;
+import co.com.pragma.model.user.exception.EmailAlreadyInUseException;
 import co.com.pragma.model.user.gateways.RolRepository;
 import co.com.pragma.usecase.user.UserUseCase;
 import enums.RangeSalaryEnum;
@@ -46,24 +47,18 @@ public class Handler {
     public Mono<ServerResponse> POSTUserUseCase(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(UserIntDto.class)
                 .map(userDtoMapper::toUserFromIntDto)
-                .flatMap(user -> {
-                    String errorValidationFields = Stream.<String>builder()
-                            .add(user.getName() == null || user.getName().isEmpty() ? "name" : null)
-                            .add(user.getLastName() == null || user.getLastName().isEmpty() ? "lastName" : null)
-                            .add(user.getEmail() == null || user.getEmail().isEmpty() ? "email" : null)
-                            .add(user.getSalary() == null ? "salary" : null)
-                            .build()
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.joining(", "));
-                    if (!errorValidationFields.isEmpty()) {
-                        return Mono.error(new ValidationExceptionHandler("Error the field is empty: " + errorValidationFields + "."));
+                .flatMap(userUseCase::registerUser).onErrorResume(throwable -> {
+                    if(throwable.getMessage().contains("Error the field is empty:") & throwable instanceof RuntimeException){
+                        return Mono.error(new ValidationExceptionHandler(throwable.getMessage()));
                     }
-                    if(user.getSalary().compareTo(RangeSalaryEnum.MAX_SALARY.getValue()) > 0 || user.getSalary().compareTo(RangeSalaryEnum.MIN_SALARY.getValue()) < 0){
-                        return Mono.error(new ValidationExceptionHandler("The salary is not in the range : ($1 - $15000000) " + errorValidationFields + "."));
+                    if(throwable.getMessage().contains("The salary is not in the range")){
+                        return Mono.error(new ValidationExceptionHandler(throwable.getMessage()));
                     }
-                    return Mono.just(user);
+                    if(throwable instanceof EmailAlreadyInUseException){
+                        return Mono.error(throwable);
+                    }
+                    return Mono.error(new RuntimeException("Error creating user"));
                 })
-                .flatMap(userUseCase::registerUser)
                 .map(userDtoMapper::toIntDto)
                 .flatMap(dto -> ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)

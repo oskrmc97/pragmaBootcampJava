@@ -35,4 +35,6 @@ public class userEntity {
     @Column("identity_document")
     private String document;
     private BigDecimal salary;
+    @Column("password_hash")
+    private String password;
 }

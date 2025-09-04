@@ -25,6 +25,7 @@ public class UserMapper {
                 .document(userEntity.getDocument())
                 .salary(userEntity.getSalary())
                 .rolUser(rolUser.getName())
+                .password(userEntity.getPassword())
                 .build();
     }
 }
