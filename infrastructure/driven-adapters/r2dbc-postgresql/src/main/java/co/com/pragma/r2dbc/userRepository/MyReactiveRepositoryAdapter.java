@@ -1,6 +1,9 @@
 package co.com.pragma.r2dbc.userRepository;
 
 import co.com.pragma.model.user.User;
+import co.com.pragma.model.user.dto.LogInDTO;
+import co.com.pragma.model.user.dto.SignUpDTO;
+import co.com.pragma.model.user.dto.TokenDTO;
 import co.com.pragma.model.user.gateways.UserRepository;
 import co.com.pragma.r2dbc.entity.userEntity;
 import co.com.pragma.r2dbc.helper.ReactiveAdapterOperations;
@@ -56,5 +59,15 @@ public class MyReactiveRepositoryAdapter
                         rolRepository.findById(entity.getRolUser())
                                 .map(rolEntity -> UserMapper.toDomain(entity, rolEntity))
                 );
+    }
+
+    @Override
+    public Mono<User> signUp(SignUpDTO dto) {
+        return null;
+    }
+
+    @Override
+    public Mono<TokenDTO> login(LogInDTO dto) {
+        return null;
     }
 }

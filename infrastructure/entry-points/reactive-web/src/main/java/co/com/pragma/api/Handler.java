@@ -6,8 +6,9 @@ import co.com.pragma.model.user.dto.UserIntDto;
 import co.com.pragma.model.user.dto.userOutDto;
 import co.com.pragma.model.user.exception.EmailAlreadyInUseException;
 import co.com.pragma.model.user.gateways.RolRepository;
+import co.com.pragma.usecase.user.LogInUseCase;
+import co.com.pragma.usecase.user.SignUpUseCase;
 import co.com.pragma.usecase.user.UserUseCase;
-import enums.RangeSalaryEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,18 +20,17 @@ import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
 import co.com.pragma.api.exceptionHandler.ValidationExceptionHandler;
 
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 @Component
 @RequiredArgsConstructor
 public class Handler {
 
     private final UserUseCase userUseCase;
     private final RolRepository rolRepository;
+    private final SignUpUseCase signUpUseCase;
+    private final LogInUseCase logInUseCase;
     private final UserDtoMapper userDtoMapper;
     private final Logger log;
+
 
     public Mono<ServerResponse> GETUserUseCase(ServerRequest serverRequest) {
         Flux<User> users = userUseCase.listUser();
@@ -78,5 +78,11 @@ public class Handler {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(user))
                 .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
+    public Mono<ServerResponse> hello(ServerRequest request) {
+        return ServerResponse.ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(Mono.just("Hello"), String.class);
     }
 }
