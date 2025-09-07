@@ -15,3 +15,7 @@ cors:
     - http://localhost:4200
     - http://localhost:3000
 
+jwt:
+  secret: ${JWT_SECRET:mySuperSecureJwtSecretKeyThatIsLongEnough123!}
+  expiration: ${JWT_EXPIRATION:3600000}
+

@@ -30,6 +30,7 @@ class ReactiveAdapterOperationsTest {
                 repository, mapper, DummyEntity::toEntity) {};
     }
 
+
     @Test
     void save() {
         DummyEntity entity = new DummyEntity("1", "test");

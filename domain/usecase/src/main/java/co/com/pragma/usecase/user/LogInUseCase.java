@@ -15,7 +15,7 @@ public class LogInUseCase {
         this.userRepository = userRepository;
     }
 
-    public Mono<TokenDTO> login(LogInDTO dto) {
-        return userRepository.login(dto);
+    public Mono<TokenDTO> login(LogInDTO logInDTO) {
+        return userRepository.login(logInDTO);
     }
 }

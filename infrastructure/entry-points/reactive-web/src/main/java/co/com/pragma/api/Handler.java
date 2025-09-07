@@ -2,8 +2,7 @@ package co.com.pragma.api;
 
 import co.com.pragma.api.mapper.UserDtoMapper;
 import co.com.pragma.model.user.User;
-import co.com.pragma.model.user.dto.UserIntDto;
-import co.com.pragma.model.user.dto.userOutDto;
+import co.com.pragma.model.user.dto.*;
 import co.com.pragma.model.user.exception.EmailAlreadyInUseException;
 import co.com.pragma.model.user.gateways.RolRepository;
 import co.com.pragma.usecase.user.LogInUseCase;
@@ -12,6 +11,7 @@ import co.com.pragma.usecase.user.UserUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -44,6 +44,7 @@ public class Handler {
         return ServerResponse.ok().bodyValue("");
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<ServerResponse> POSTUserUseCase(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(UserIntDto.class)
                 .map(userDtoMapper::toUserFromIntDto)
@@ -85,4 +86,20 @@ public class Handler {
                 .contentType(MediaType.TEXT_PLAIN)
                 .body(Mono.just("Hello"), String.class);
     }
+
+    public Mono<ServerResponse> signUp(ServerRequest request) {
+        return request.bodyToMono(SignUpDTO.class)
+                .flatMap(dto -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(signUpUseCase.signUp(dto), User.class));
+    }
+
+    public Mono<ServerResponse> logIn(ServerRequest request) {
+
+        return request.bodyToMono(LogInDTO.class)
+                .flatMap(dto -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(logInUseCase.login(dto), TokenDTO.class));
+    }
+
 }

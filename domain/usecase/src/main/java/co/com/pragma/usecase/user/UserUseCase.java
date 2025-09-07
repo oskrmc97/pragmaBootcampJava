@@ -43,7 +43,8 @@ public class UserUseCase{
                 return Mono.error(new RuntimeException("The salary is not in the range : ($1 - $15000000) " + errorValidationFields + "."));
             }
             else {
-                return userRepository.RegisterUser(user)
+                return userRepository
+                        .RegisterUser(user)
                         .doOnSubscribe(subscription -> log.info("microservice create user init"))
                         .doOnNext(User -> log.info("{} User created correctly")).
                         onErrorResume(throwable -> {

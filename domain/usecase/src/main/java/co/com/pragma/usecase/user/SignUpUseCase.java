@@ -13,7 +13,7 @@ public class SignUpUseCase {
         this.userRepository = userRepository;
     }
 
-    public Mono<User> signUp(SignUpDTO dto) {
-        return userRepository.signUp(dto);
+    public Mono<User> signUp(SignUpDTO signUpDTO) {
+        return userRepository.signUp(signUpDTO);
     }
 }

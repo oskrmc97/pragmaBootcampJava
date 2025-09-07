@@ -74,6 +74,8 @@ public class RouterRest {
         return route(GET("/userUsecase"), handler::GETUserUseCase)
                 .andRoute(POST("/api/v1/usuarios"), handler::POSTUserUseCase)
                 .andRoute(GET("/api/v1/usuarios/email/{email}"), handler::GETUserUseCaseByEmail)
-                .andRoute(GET("/api/v1/auth"), handler::hello);
+                .andRoute(GET("/api/v1/auth"), handler::hello)
+                .andRoute(POST("/auth/signup"), handler::signUp)
+                .andRoute(POST("/auth/login"), handler::logIn);
     }
 }
