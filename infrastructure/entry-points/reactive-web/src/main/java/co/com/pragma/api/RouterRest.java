@@ -1,7 +1,12 @@
 package co.com.pragma.api;
 
+import co.com.pragma.api.dto.SwaggerErrorResponse;
 import co.com.pragma.model.user.User;
+import co.com.pragma.model.user.dto.LogInDTO;
+import co.com.pragma.model.user.dto.TokenDTO;
+import co.com.pragma.usecase.user.LogInUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;
@@ -25,56 +30,53 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class RouterRest {
 
 
-
     @Bean
-    @RouterOperations({ @RouterOperation(path = "/userUsecase", produces = {
-            MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET, beanClass = Handler.class, beanMethod = "GETUserUseCase",
-
-            operation = @Operation(operationId = "GETUserUseCase", responses = {
-                    @ApiResponse(responseCode = "200", description = "get all users successfully.", content = @Content(schema = @Schema(implementation = User.class))) })),
-            @RouterOperation(path = "/api/v1/usuarios/email/{email}", produces = {
-                    MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET, beanClass = Handler.class, beanMethod = "GETUserUseCaseByEmail", operation = @Operation(operationId = "GETUserUseCaseByEmail", responses = {
-                    @ApiResponse(responseCode = "200", description = "get user successfully.", content = @Content(schema = @Schema(implementation = User.class))),
-                    @ApiResponse(responseCode = "404", description = "user not found by email.") }, parameters = {
-                    @Parameter(in = ParameterIn.PATH, name = "email") })),
-
+    @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/usuarios",
-                    produces = {
-                            MediaType.APPLICATION_JSON_VALUE
-                    },
+                    path = "/auth/login",
+                    produces = { MediaType.APPLICATION_JSON_VALUE },
                     method = RequestMethod.POST,
                     beanClass = Handler.class,
-                    beanMethod = "POSTUserUseCase",
+                    beanMethod = "logIn",
                     operation = @Operation(
-                            operationId = "/api/v1/usuarios",
+                            operationId = "logIn",
+                            description = "Permite el logueo de usuarios registrados al sistema ",
                             responses = {
                                     @ApiResponse(
                                             responseCode = "200",
-                                            description = "successful operation",
+                                            description = "Logueo correcto",
                                             content = @Content(schema = @Schema(
-                                                    implementation = String.class
+                                                    implementation = TokenDTO.class
+                                            ))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "bad credentials.",
+                                            content = @Content(schema = @Schema(
+                                                    implementation = SwaggerErrorResponse.class
+                                            ))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "500",
+                                            description = "Error interno al procesar la solicitud.",
+                                            content = @Content(schema = @Schema(
+                                                    implementation = SwaggerErrorResponse.class
                                             ))
                                     )
                             },
                             requestBody = @RequestBody(
+                                    description = "Datos de entrada para la solicitud de préstamo.",
                                     content = @Content(schema = @Schema(
-                                            implementation = Handler.class
+                                            implementation = LogInDTO.class
                                     ))
                             )
-
                     )
-
-
             )
-
-
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(GET("/userUsecase"), handler::GETUserUseCase)
                 .andRoute(POST("/api/v1/usuarios"), handler::POSTUserUseCase)
                 .andRoute(GET("/api/v1/usuarios/email/{email}"), handler::GETUserUseCaseByEmail)
-                .andRoute(GET("/api/v1/auth"), handler::hello)
                 .andRoute(POST("/auth/signup"), handler::signUp)
                 .andRoute(POST("/auth/login"), handler::logIn);
     }

@@ -8,15 +8,31 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Component
 public class JwtFilter implements WebFilter {
+
+    private static final List<String> EXCLUDED_PATHS = List.of(
+            "/auth",
+            "/swagger-ui.html",
+            "/swagger-ui/",
+            "/swagger-ui/index.html",
+            "/swagger-ui",
+            "/swagger-ui/**",
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/webjars/"
+    );
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().value();
-        if(path.contains("auth"))
+
+        if (EXCLUDED_PATHS.stream().anyMatch(path::startsWith)) {
             return chain.filter(exchange);
+        }
         String auth = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if(auth == null)
             return Mono.error(new Throwable("no token was found"));

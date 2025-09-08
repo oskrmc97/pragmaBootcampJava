@@ -72,6 +72,7 @@ public class Handler {
                 });
     }
 
+    @PreAuthorize("hasAuthority('CLIENT')")
     public Mono<ServerResponse> GETUserUseCaseByEmail(ServerRequest serverRequest) {
         String email = serverRequest.pathVariable("email");
         return userUseCase.findUserByEmail(email)
@@ -79,12 +80,6 @@ public class Handler {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(user))
                 .switchIfEmpty(ServerResponse.notFound().build());
-    }
-
-    public Mono<ServerResponse> hello(ServerRequest request) {
-        return ServerResponse.ok()
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(Mono.just("Hello"), String.class);
     }
 
     public Mono<ServerResponse> signUp(ServerRequest request) {
