@@ -1,6 +1,7 @@
 package co.com.pragma.api;
 
 import co.com.pragma.model.loanRequest.dto.UserDto;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -16,12 +17,14 @@ public class UserClient {
         this.webClient = userServiceWebClient;
     }
 
-    public Mono<UserDto> UserValidator(String email) {
+    public Mono<UserDto> UserValidator(String email, String token) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/v1/usuarios/email/{email}")
                         .build(email))
+                .headers(headers -> headers.set(HttpHeaders.AUTHORIZATION, token))
                 .retrieve()
                 .bodyToMono(UserDto.class);
     }
+
 }

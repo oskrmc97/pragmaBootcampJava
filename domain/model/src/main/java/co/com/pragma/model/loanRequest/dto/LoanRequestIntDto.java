@@ -17,5 +17,4 @@ public class LoanRequestIntDto {
     BigDecimal amount;
     Integer term;
     String loan_type;
-    String status;
 }

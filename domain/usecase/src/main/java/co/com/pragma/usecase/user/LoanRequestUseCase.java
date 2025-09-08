@@ -1,8 +1,11 @@
 package co.com.pragma.usecase.user;
 
 import co.com.pragma.model.loanRequest.LoanRequest;
-import co.com.pragma.model.loanRequest.exception.EmailAlreadyInUseException;
+import co.com.pragma.model.loanRequest.exception.FieldValidationException;
+import co.com.pragma.model.loanRequest.exception.ValidateInputDateException;
 import co.com.pragma.model.loanRequest.gateways.LoanRequestRepository;
+import enums.LoanType;
+import enums.StatusLoanRequestEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import reactor.core.publisher.Flux;
@@ -22,15 +25,29 @@ public class LoanRequestUseCase {
 
     public Mono<LoanRequest> registerLoanRequest(LoanRequest loanRequest){
 
-        return loanRequestRepository.RegisterLoanRequest(loanRequest)
+        return Mono.just(loanRequest)
+                .filter(loan ->
+                        loan.getLoan_type().equals(LoanType.LIBRE_INVERSION.getValue()) ||
+                                loan.getLoan_type().equals(LoanType.VEHICULO.getValue()) ||
+                                loan.getLoan_type().equals(LoanType.VIVIENDA.getValue()) ||
+                                loan.getLoan_type().equals(LoanType.ESTUDIO.getValue()))
+                .switchIfEmpty(
+                        Mono.error(new FieldValidationException("Loan type not allowed")))
+                .flatMap(loan -> {
+                    loan.setStatus(StatusLoanRequestEnum.PENDIETE_REVISION.getValue());
+                    return Mono.just(loan);
+                    })
+                .flatMap(loanRequestRepository::RegisterLoanRequest)
                 .doOnSubscribe(subscription -> log.info("microservice create loanRequest init"))
-                .doOnNext(User -> log.info("{} User created correctly")).onErrorResume(throwable -> {
-                    if( throwable.getCause().getMessage().equals("duplicate key value violates unique constraint \"user_entity_email_key\"")){
-                        return Mono.error(new EmailAlreadyInUseException("Error creating loanRequest, request is in process"));
+                .doOnNext(loan -> log.info("{} loan created correctly")).onErrorResume(throwable ->
+                {
+                    if(throwable instanceof FieldValidationException){
+                        return Mono.error(throwable);
                     }
                     else{
-                        return Mono.error(new RuntimeException("Error creating loanRequest"));
-                    }});
-
+                        log.info(throwable.getCause().getMessage());
+                        return Mono.error(new RuntimeException("General error!"));
+                    }
+                });
     }
 }

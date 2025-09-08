@@ -13,6 +13,7 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -24,4 +25,38 @@ class LoanRequestUseCaseTest {
 
     @InjectMocks
     private LoanRequestUseCase loanRequestUseCase;
+
+    //Validar generacion de prestamo correctamente
+    @Test
+    public void shouldGenerateLoanRequestCorrectly(){
+        Integer term = 24;
+        BigDecimal amount = new BigDecimal(400);
+        LoanRequest loanRequest = new LoanRequest("875309294","coco@gmail.com",amount,term,"Libre Inversión",null);
+
+        when(loanRequestRepository.RegisterLoanRequest(any(LoanRequest.class)))
+                .thenReturn(Mono.just(loanRequest));
+
+        StepVerifier.create(loanRequestUseCase.registerLoanRequest(loanRequest))
+                .expectNext(loanRequest)
+                .verifyComplete();
+    }
+    //Validar control por tipo de prestamos no permitido
+    @Test
+    public void whenShouldGenerateLoanRequestThenLoanTypeNotAllowed(){
+        Integer term = 24;
+        BigDecimal amount = new BigDecimal(400);
+        LoanRequest loanRequest = new LoanRequest("875309294","coco@gmail.com",amount,term,"Inversión",null);
+
+        StepVerifier.create(loanRequestUseCase.registerLoanRequest(loanRequest))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error)
+                            .isInstanceOf(RuntimeException.class);
+                    assertThat(error.getMessage())
+                            .contains("Loan type not allowed");
+                })
+                .verify();
+    }
+
+    //Validar cuando el usuario no exite
+
 }
