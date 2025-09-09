@@ -55,6 +55,9 @@ public class Handler {
                     if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
                         return Mono.error(new ValidationExceptionHandler("The user does not exist"));
                     }
+                    if (ex.getStatusCode() == HttpStatus.FORBIDDEN) {
+                        return Mono.error(new ValidationExceptionHandler("The user logged is not same that the user in the loan request "));
+                    }
                     return Mono.error(new RuntimeException("Error calling user service: " + ex.getMessage()));
                 })
                 .flatMap(loanRequestUseCase::registerLoanRequest)
