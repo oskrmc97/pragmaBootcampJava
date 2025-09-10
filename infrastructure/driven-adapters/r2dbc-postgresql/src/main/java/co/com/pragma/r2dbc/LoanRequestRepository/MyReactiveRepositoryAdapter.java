@@ -29,7 +29,12 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<LoanR
     @Override
     public Flux<LoanRequest> listLoanRequest() {
         return repository.findAll()
-                .map(entity -> mapper.map(entity, LoanRequest.class));
+                .flatMap(entity -> Mono.zip(
+                        Mono.just(entity),
+                        loanTypeRepository.findById(entity.getLoan_type()),
+                        loanStatusRepository.findById(entity.getStatus())
+                ))
+                .map(tuple -> LoanMapper.toDomain(tuple.getT1(), tuple.getT2(), tuple.getT3()));
     }
 
     @Override

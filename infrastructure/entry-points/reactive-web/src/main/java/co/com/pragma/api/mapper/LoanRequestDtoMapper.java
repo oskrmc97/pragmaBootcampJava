@@ -11,6 +11,8 @@ import java.util.List;
 public interface LoanRequestDtoMapper {
     LoanRequestOutDto toDto(LoanRequest loanRequest);
     LoanRequestIntDto toIntDto(LoanRequest loanRequest);
-    List<LoanRequestOutDto> toDtoList(List<LoanRequest> users);
+    List<LoanRequestOutDto> toDtoList(List<LoanRequest> loanRequestsList);
     LoanRequest toLoanRequestFromIntDto(LoanRequestIntDto loanRequestDto);
+
+
 }

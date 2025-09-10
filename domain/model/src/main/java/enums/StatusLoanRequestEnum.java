@@ -7,20 +7,17 @@ import java.math.BigInteger;
 @Getter
 public enum StatusLoanRequestEnum {
 
-    PENDIENTE_REVISION(BigInteger.valueOf(1));
+    PENDIENTE_REVISION("1");
 
 
-    private final BigInteger value;
+    private final String value;
 
-    StatusLoanRequestEnum(BigInteger value) {
+    StatusLoanRequestEnum(String value) {
         this.value = value;
     }
 
-    public BigInteger getValue() {
+    public String getValue() {
         return value;
     }
 
-    public static BigInteger fromString(String type) {
-        return LoanType.valueOf(type).getValue();
-    }
 }

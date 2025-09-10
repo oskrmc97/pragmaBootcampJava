@@ -16,7 +16,6 @@ public class LoanRequest {
     private String email;
     private BigDecimal amount;
     private Integer term;
-    private BigInteger loan_type;
-    private BigInteger status;
-
+    private String loan_type;
+    private String status;
 }

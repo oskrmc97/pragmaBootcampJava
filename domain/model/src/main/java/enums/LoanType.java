@@ -7,22 +7,21 @@ import java.math.BigInteger;
 @Getter
 public enum LoanType {
 
-    LIBRE_INVERSION(BigInteger.valueOf(1)),
-    VEHICULO(BigInteger.valueOf(2)),
-    VIVIENDA(BigInteger.valueOf(3)),
-    ESTUDIO(BigInteger.valueOf(4));
+    PERSONAL("1"),
+    LIBRE("2"),
+    VIVIENDA("3");
 
-    private final BigInteger value;
+    private final String value;
 
-    LoanType(BigInteger value) {
+    LoanType(String value) {
         this.value = value;
     }
 
-    public BigInteger getValue() {
+    public String getValue() {
         return value;
     }
 
-    public static BigInteger fromString(String type) {
+    public static String fromString(String type) {
         return LoanType.valueOf(type).getValue();
     }
 }

@@ -84,7 +84,7 @@ public class RouterRest {
             )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
-        return route(GET("/list/loanRequest"), handler::GETULoanRequestUseCase)
+        return route(GET("/api/v1/solicitud"), handler::GETULoanRequestUseCase)
                 .andRoute(POST("/api/v1/solicitud"), handler::POSTLoanRequestUseCase);
     }
 }

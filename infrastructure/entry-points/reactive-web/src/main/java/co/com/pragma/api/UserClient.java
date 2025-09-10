@@ -27,4 +27,12 @@ public class UserClient {
                 .bodyToMono(UserDto.class);
     }
 
+    public Mono<UserDto> UserAdviserValidator(String token) {
+        return webClient.get()
+                .uri("/api/v1/adviser")
+                .headers(headers -> headers.set(HttpHeaders.AUTHORIZATION, token))
+                .retrieve()
+                .bodyToMono(UserDto.class);
+    }
+
 }

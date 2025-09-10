@@ -4,6 +4,7 @@ import co.com.pragma.api.mapper.LoanRequestDtoMapper;
 import co.com.pragma.model.loanRequest.LoanRequest;
 import co.com.pragma.model.loanRequest.dto.LoanRequestIntDto;
 import co.com.pragma.model.loanRequest.dto.LoanRequestOutDto;
+import co.com.pragma.model.loanRequest.dto.UserDto;
 import co.com.pragma.usecase.user.LoanRequestUseCase;
 import enums.LoanType;
 import enums.StatusLoanRequestEnum;
@@ -32,11 +33,28 @@ public class Handler {
 
 
     public Mono<ServerResponse> GETULoanRequestUseCase(ServerRequest serverRequest) {
-        Flux<LoanRequest> loanRequest = loanRequestUseCase.listLoanRequest();
-        return ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(loanRequest.map(loanRequestDtoMapper::toDto), LoanRequestOutDto.class);
+        String token = serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION);
 
+        return userClient.UserAdviserValidator(token)
+                .doOnSubscribe(sub -> log.info("init search of adviser"))
+                .doOnNext(userDto -> log.info("Adviser found: {}", userDto.getEmail()))
+                .flatMap(userDto ->
+                        loanRequestUseCase.listLoanRequest()
+                                .collectList().map(loanRequestDtoMapper::toDtoList)
+                                .flatMap(list ->
+                                        ServerResponse.ok()
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .bodyValue(list)
+                                )
+                )
+                .switchIfEmpty(
+                        ServerResponse.status(HttpStatus.FORBIDDEN)
+                                .bodyValue("Invalid token")
+                )
+                .onErrorResume(e ->
+                        ServerResponse.status(HttpStatus.UNAUTHORIZED)
+                                .bodyValue("User is not authorized only adviser")
+                );
     }
 
     public Mono<ServerResponse> POSTLoanRequestUseCase(ServerRequest serverRequest) {

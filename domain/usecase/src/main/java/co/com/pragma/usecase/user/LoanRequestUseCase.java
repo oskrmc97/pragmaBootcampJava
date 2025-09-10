@@ -27,10 +27,9 @@ public class LoanRequestUseCase {
 
         return Mono.just(loanRequest)
                 .filter(loan ->
-                        loan.getLoan_type().equals(LoanType.LIBRE_INVERSION.getValue()) ||
-                                loan.getLoan_type().equals(LoanType.VEHICULO.getValue()) ||
-                                loan.getLoan_type().equals(LoanType.VIVIENDA.getValue()) ||
-                                loan.getLoan_type().equals(LoanType.ESTUDIO.getValue()))
+                        loan.getLoan_type().equals(LoanType.PERSONAL.getValue()) ||
+                                loan.getLoan_type().equals(LoanType.LIBRE.getValue()) ||
+                                loan.getLoan_type().equals(LoanType.VIVIENDA.getValue()))
                 .switchIfEmpty(
                         Mono.error(new FieldValidationException("Loan type not allowed")))
                 .flatMap(loan -> {

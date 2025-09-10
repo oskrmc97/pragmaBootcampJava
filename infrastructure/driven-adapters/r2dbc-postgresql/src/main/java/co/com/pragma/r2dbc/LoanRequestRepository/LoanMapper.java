@@ -30,9 +30,11 @@ public class LoanMapper {
                 .email(loanRequest.getEmail())
                 .amount(loanRequest.getAmount())
                 .term(loanRequest.getTerm())
-                .loan_type(loanTypeMap.getIdLoanType())
+                .loan_type(loanTypeMap.getName())
                 .email(loanRequest.getEmail())
-                .status(loanStatusMap.getIdStatus())
+                .status(loanStatusMap.getName())
                 .build();
     }
+
+
 }
