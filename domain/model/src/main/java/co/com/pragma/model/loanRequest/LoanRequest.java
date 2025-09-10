@@ -2,6 +2,7 @@ package co.com.pragma.model.loanRequest;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 //import lombok.NoArgsConstructor;
 
 
@@ -15,7 +16,7 @@ public class LoanRequest {
     private String email;
     private BigDecimal amount;
     private Integer term;
-    private String loan_type;
-    private String status;
+    private BigInteger loan_type;
+    private BigInteger status;
 
 }

@@ -34,7 +34,7 @@ public class LoanRequestUseCase {
                 .switchIfEmpty(
                         Mono.error(new FieldValidationException("Loan type not allowed")))
                 .flatMap(loan -> {
-                    loan.setStatus(StatusLoanRequestEnum.PENDIETE_REVISION.getValue());
+                    loan.setStatus(StatusLoanRequestEnum.PENDIENTE_REVISION.getValue());
                     return Mono.just(loan);
                     })
                 .flatMap(loanRequestRepository::RegisterLoanRequest)

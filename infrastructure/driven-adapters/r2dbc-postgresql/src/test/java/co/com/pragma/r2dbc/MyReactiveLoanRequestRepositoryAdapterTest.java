@@ -1,5 +1,7 @@
 package co.com.pragma.r2dbc;
 
+import co.com.pragma.r2dbc.LoanRequestRepository.MyReactiveLoanRequestRepository;
+import co.com.pragma.r2dbc.LoanRequestRepository.MyReactiveRepositoryAdapter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,14 +17,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class MyReactiveRepositoryAdapterTest {
+class MyReactiveLoanRequestRepositoryAdapterTest {
     // TODO: change four you own tests
 
     @InjectMocks
     MyReactiveRepositoryAdapter repositoryAdapter;
 
     @Mock
-    MyReactiveRepository repository;
+    MyReactiveLoanRequestRepository repository;
 
     @Mock
     ObjectMapper mapper;
