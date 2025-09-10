@@ -4,11 +4,13 @@ import co.com.pragma.api.mapper.UserDtoMapper;
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.dto.*;
 import co.com.pragma.model.user.exception.EmailAlreadyInUseException;
+import co.com.pragma.model.user.gateways.JwtService;
 import co.com.pragma.model.user.gateways.RolRepository;
 import co.com.pragma.usecase.user.LogInUseCase;
 import co.com.pragma.usecase.user.SignUpUseCase;
 import co.com.pragma.usecase.user.UserUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +32,7 @@ public class Handler {
     private final LogInUseCase logInUseCase;
     private final UserDtoMapper userDtoMapper;
     private final Logger log;
+    private final JwtService jwtService;
 
 
     public Mono<ServerResponse> GETUserUseCase(ServerRequest serverRequest) {
@@ -74,7 +77,13 @@ public class Handler {
 
     @PreAuthorize("hasAuthority('CLIENT')")
     public Mono<ServerResponse> GETUserUseCaseByEmail(ServerRequest serverRequest) {
+        String token = serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION);
+        String emailFromToken = jwtService.getEmailFromToken(token);
         String email = serverRequest.pathVariable("email");
+        if (!email.equals(emailFromToken)) {
+            log.error("User logged is not same user email");
+            return ServerResponse.status(HttpStatus.FORBIDDEN).build();
+        }
         return userUseCase.findUserByEmail(email)
                 .flatMap(user -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
