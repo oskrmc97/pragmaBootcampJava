@@ -91,6 +91,17 @@ public class Handler {
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
+    @PreAuthorize("hasAuthority('ADVISER')")
+    public Mono<ServerResponse> GETUserRolAdviser(ServerRequest serverRequest) {
+        String token = serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION);
+        String emailFromToken = jwtService.getEmailFromToken(token);
+        return userUseCase.findUserByEmail(emailFromToken)
+                .flatMap(user -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(user))
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
     public Mono<ServerResponse> signUp(ServerRequest request) {
         return request.bodyToMono(SignUpDTO.class)
                 .flatMap(dto -> ServerResponse.ok()
