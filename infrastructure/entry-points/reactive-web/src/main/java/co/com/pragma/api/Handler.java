@@ -77,6 +77,14 @@ public class Handler {
                 .flatMap(user -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(user))
-                .switchIfEmpty(ServerResponse.notFound().build());
+                .switchIfEmpty(ServerResponse.status(HttpStatus.NOT_FOUND)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue("{\"error\": \"User not found with email: " + email + "\"}"))
+                .onErrorResume(RuntimeException.class, ex -> {
+                    String errorMessage = "business error: " + ex.getMessage();
+                    return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(errorMessage);
+                });
     }
 }

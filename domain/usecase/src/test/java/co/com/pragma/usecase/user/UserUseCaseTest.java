@@ -70,12 +70,12 @@ class UserUseCaseTest {
                 new BigDecimal(13000),"ADMIN","123456");
 
         Throwable cause = new Throwable("general error");
-        RuntimeException dbException = new RuntimeException(
+        RuntimeException other_error = new RuntimeException(
                 "other error",cause
         );
 
         when(userRepository.RegisterUser(any(User.class)))
-                .thenReturn(Mono.error(dbException));
+                .thenReturn(Mono.error(other_error));
 
         StepVerifier.create(userUseCase.registerUser(user))
                 .expectErrorSatisfies(error -> {
@@ -117,6 +117,21 @@ class UserUseCaseTest {
                             .contains("The salary is not in the range");
                 })
                 .verify();
+    }
+
+    @Test
+    void getUserWithEmail_shouldReturnUser() {
+        User user = new User("Roberto", "Juan", LocalDate.of(1997,7,5),
+                "Pasto","3234657453","omelo@gmail.com","1085335644",
+                new BigDecimal(15000001),"ADMIN","123456");
+
+        String email = "omelo@gmail.com";
+
+        when(userRepository.findUserByEmail(email)).thenReturn(Mono.just(user));
+
+        StepVerifier.create(userUseCase.findUserByEmail(email))
+                .expectNext(user)
+                .verifyComplete();
     }
 }
 
