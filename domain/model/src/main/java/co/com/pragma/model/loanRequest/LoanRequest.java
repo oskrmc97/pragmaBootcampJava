@@ -17,5 +17,6 @@ public class LoanRequest {
     private BigDecimal amount;
     private Integer term;
     private String loan_type;
+    private Double interestRate;
     private String status;
 }

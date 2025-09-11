@@ -2,6 +2,8 @@ package co.com.pragma.r2dbc.LoanRequestRepository;
 
 import co.com.pragma.model.loanRequest.LoanRequest;
 import co.com.pragma.model.loanRequest.gateways.LoanRequestRepository;
+import co.com.pragma.model.pagination.PageRequest;
+import co.com.pragma.model.pagination.PageResult;
 import co.com.pragma.r2dbc.LoanStatusRepository.MyReactiveLoanStatusRepository;
 import co.com.pragma.r2dbc.LoanTypeRepository.MyReactiveLoanTypeRepository;
 import co.com.pragma.r2dbc.entity.LoanRequestEntity;
@@ -27,14 +29,60 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<LoanR
     }
 
     @Override
-    public Flux<LoanRequest> listLoanRequest() {
-        return repository.findAll()
+    public Mono<PageResult<LoanRequest>> listLoanRequest(PageRequest pageRequest) {
+        var pageable = org.springframework.data.domain.PageRequest.of(
+                pageRequest.getPage(),
+                pageRequest.getSize()
+        );
+        return repository.findAllBy(pageable)
                 .flatMap(entity -> Mono.zip(
                         Mono.just(entity),
                         loanTypeRepository.findById(entity.getLoan_type()),
                         loanStatusRepository.findById(entity.getStatus())
                 ))
-                .map(tuple -> LoanMapper.toDomain(tuple.getT1(), tuple.getT2(), tuple.getT3()));
+                .map(tuple -> LoanMapper.toDomain(tuple.getT1(), tuple.getT2(), tuple.getT3()))
+                .collectList()
+                .zipWith(repository.count()) // total de registros
+                .map(tuple -> new PageResult<>(
+                        tuple.getT1(),        // lista de LoanRequest
+                        tuple.getT2(),        // total
+                        pageRequest.getPage(),
+                        pageRequest.getSize()
+                ));
+    }
+
+    @Override
+    public Mono<PageResult<LoanRequest>> listLoanRequest(PageRequest pageRequest, String status) {
+        var pageable = org.springframework.data.domain.PageRequest.of(pageRequest.getPage(), pageRequest.getSize());
+
+        Flux<LoanRequestEntity> entityFlux;
+        Mono<Long> countMono;
+
+        if (status != null && !status.isBlank()) {
+            entityFlux = repository.findAllByStatus(status, pageable);
+            countMono = repository.countByStatus(status);
+        } else {
+            entityFlux = repository.findAllBy(pageable);
+            countMono = repository.count();
+        }
+
+        return entityFlux
+                .flatMap(entity ->
+                        Mono.zip(
+                                Mono.just(entity),
+                                loanTypeRepository.findById(entity.getLoan_type()),
+                                loanStatusRepository.findById(entity.getStatus())
+                        )
+                )
+                .map(tuple -> LoanMapper.toDomain(tuple.getT1(), tuple.getT2(), tuple.getT3()))
+                .collectList()
+                .zipWith(countMono)
+                .map(tuple -> new PageResult<>(
+                        tuple.getT1(),
+                        tuple.getT2(),
+                        pageRequest.getPage(),
+                        pageRequest.getSize()
+                ));
     }
 
     @Override

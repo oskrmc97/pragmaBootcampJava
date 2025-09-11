@@ -8,6 +8,7 @@ public record LoanRequestOutDto(
         BigDecimal amount,
         Integer term,
         String loan_type,
+        Double interestRate,
         String status) {
 
 }

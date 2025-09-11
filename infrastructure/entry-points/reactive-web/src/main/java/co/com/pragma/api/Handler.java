@@ -1,13 +1,10 @@
 package co.com.pragma.api;
 
 import co.com.pragma.api.mapper.LoanRequestDtoMapper;
-import co.com.pragma.model.loanRequest.LoanRequest;
 import co.com.pragma.model.loanRequest.dto.LoanRequestIntDto;
-import co.com.pragma.model.loanRequest.dto.LoanRequestOutDto;
-import co.com.pragma.model.loanRequest.dto.UserDto;
+import co.com.pragma.model.pagination.PageRequest;
+import co.com.pragma.model.pagination.PageResult;
 import co.com.pragma.usecase.user.LoanRequestUseCase;
-import enums.LoanType;
-import enums.StatusLoanRequestEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
 import co.com.pragma.api.exceptionHandler.ValidationExceptionHandler;
@@ -34,17 +30,26 @@ public class Handler {
 
     public Mono<ServerResponse> GETULoanRequestUseCase(ServerRequest serverRequest) {
         String token = serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION);
+        int page = serverRequest.queryParam("page").map(Integer::parseInt).orElse(0);
+        int size = serverRequest.queryParam("size").map(Integer::parseInt).orElse(10);
+        String status = serverRequest.queryParam("status").orElse(null);
+        var pageRequest = new PageRequest(page, size);
 
         return userClient.UserAdviserValidator(token)
                 .doOnSubscribe(sub -> log.info("init search of adviser"))
                 .doOnNext(userDto -> log.info("Adviser found: {}", userDto.getEmail()))
                 .flatMap(userDto ->
-                        loanRequestUseCase.listLoanRequest()
-                                .collectList().map(loanRequestDtoMapper::toDtoList)
-                                .flatMap(list ->
+                        loanRequestUseCase.listLoanRequest(pageRequest,status)
+                                .map(result -> new PageResult<>(
+                                        loanRequestDtoMapper.toDtoList(result.getItems()), // mapeo a DTO
+                                        result.getTotal(),
+                                        result.getPage(),
+                                        result.getSize()
+                                ))
+                                .flatMap(resultDto ->
                                         ServerResponse.ok()
                                                 .contentType(MediaType.APPLICATION_JSON)
-                                                .bodyValue(list)
+                                                .bodyValue(resultDto)
                                 )
                 )
                 .switchIfEmpty(

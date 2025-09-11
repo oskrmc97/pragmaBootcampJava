@@ -4,6 +4,8 @@ import co.com.pragma.model.loanRequest.LoanRequest;
 import co.com.pragma.model.loanRequest.exception.FieldValidationException;
 import co.com.pragma.model.loanRequest.exception.ValidateInputDateException;
 import co.com.pragma.model.loanRequest.gateways.LoanRequestRepository;
+import co.com.pragma.model.pagination.PageRequest;
+import co.com.pragma.model.pagination.PageResult;
 import enums.LoanType;
 import enums.StatusLoanRequestEnum;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +20,17 @@ public class LoanRequestUseCase {
 
     private final LoanRequestRepository loanRequestRepository;
 
-    public Flux<LoanRequest> listLoanRequest(){
-        return loanRequestRepository.listLoanRequest().doOnSubscribe(subscription -> log.info("Init search from users"))
-                .doOnNext(loanRequest -> log.info("loanRequest found"));
+    public Mono<PageResult<LoanRequest>> listLoanRequest(PageRequest pageRequest) {
+        return loanRequestRepository.listLoanRequest(pageRequest)
+                .doOnSubscribe(subscription -> log.info("Init search from users"))
+                .doOnNext(result -> log.info("Page init"));
     }
+
+    public Mono<PageResult<LoanRequest>> listLoanRequest(PageRequest pageRequest, String status) {
+        return loanRequestRepository.listLoanRequest(pageRequest, status)
+                .doOnSubscribe(subscription -> log.info("Searching loans with status"));
+    }
+
 
     public Mono<LoanRequest> registerLoanRequest(LoanRequest loanRequest){
 
